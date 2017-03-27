@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">yandextranslator</string>
+    <string name="tab_translate">Переводчик</string>
+    <string name="tab_favorites">Избранное</string>
+    <string name="tab_history">История</string>
+    <string name="text_tab_header">Заголовок</string>
 </resources>
