@@ -4,4 +4,5 @@
     <string name="tab_favorites">Избранное</string>
     <string name="tab_history">История</string>
     <string name="text_tab_header">Заголовок</string>
+    <string name="buttonTranslate">Перевести</string>
 </resources>

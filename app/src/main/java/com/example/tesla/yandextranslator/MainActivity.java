@@ -1,13 +1,20 @@
 package com.example.tesla.yandextranslator;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TabHost;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static String KEY_MESSAGE_FOR_TRANSLATE = "MessageForTranslate";
+
+    public EditText translateText;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -49,5 +56,16 @@ public class MainActivity extends AppCompatActivity {
 
         // вторая вкладка будет выбрана по умолчанию
         tabHost.setCurrentTabByTag("tag1");
+
+        translateText = (EditText) findViewById(R.id.translateFieldId);
+        Button translateButton = (Button) findViewById(R.id.buttonTranslateId);
+        translateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
+                intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
+                startService(intent);
+            }
+        });
     }
 }
