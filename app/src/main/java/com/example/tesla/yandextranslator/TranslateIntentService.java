@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +35,28 @@ public class TranslateIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             String value = intent.getStringExtra(KEY_MESSAGE_FOR_TRANSLATE);
+            List<String> values = new ArrayList<>();
+            try {
+                URLEncoder.encode(value,"UTF8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            values.add(value);
+            values.add(value);
 
             final List<ResponseTranslate> translates = new ArrayList<>();
             App.getApi().tranaslate("trnsl.1.1.20170323T081927Z.1c9be6abb2522c33.f9ca2f4993e117e3bc673e579af132d13acd8bb2",
-                    value, "en-ru").enqueue(new Callback<List<ResponseTranslate>>() {
+                    values, "en-ru")
+
+            .enqueue(new Callback<ResponseTranslate>() {
+
                 @Override
-                public void onResponse(Call<List<ResponseTranslate>> call, Response<List<ResponseTranslate>> response) {
-                    translates.addAll(response.body());
+                public void onResponse(Call<ResponseTranslate> call, Response<ResponseTranslate> response) {
+                    translates.add(response.body());
                 }
 
                 @Override
-                public void onFailure(Call<List<ResponseTranslate>> call, Throwable t) {
+                public void onFailure(Call<ResponseTranslate> call, Throwable t) {
                     Toast.makeText(TranslateIntentService.this,
                             "An error occurred during networking", Toast.LENGTH_SHORT).show();
                 }
