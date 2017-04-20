@@ -1,8 +1,13 @@
 <resources>
-    <string name="app_name">yandextranslator</string>
+    <string name="app_name">Яндекс переводчик</string>
+    <string name="key_yandex_api">trnsl.1.1.20170323T081927Z.1c9be6abb2522c33.f9ca2f4993e117e3bc673e579af132d13acd8bb2</string>
+    <string name="key_yandex_api_all">dict.1.1.20170420T200101Z.96da98cb0fbe97ec.982312bf7a7a53f8474bca7bfb4d3e73b18753f3</string>
     <string name="tab_translate">Переводчик</string>
     <string name="tab_favorites">Избранное</string>
     <string name="tab_history">История</string>
     <string name="text_tab_header">Заголовок</string>
     <string name="buttonTranslate">Перевести</string>
+    <string name="buttonClear">Очистить</string>
+    <string name="ru_en_string">русский-английский</string>
+    <string name="en_ru_string">английский-русский</string>
 </resources>

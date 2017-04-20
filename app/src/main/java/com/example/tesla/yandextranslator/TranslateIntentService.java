@@ -2,65 +2,69 @@ package com.example.tesla.yandextranslator;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
-import static android.content.ContentValues.TAG;
+import static com.example.tesla.yandextranslator.MainActivity.KEY_LANGUAGE_TRANSLATE;
 import static com.example.tesla.yandextranslator.MainActivity.KEY_MESSAGE_FOR_TRANSLATE;
 
 
 public class TranslateIntentService extends IntentService {
 
+    public static final String ACTION_TRANSLATE = "com.example.tesla.yandextranslator.Translate";
+    public static final String EXTRA_KEY_TRANSLATE = "translate";
+    public static final String SUCCESS_STATUS = "200";
+    public static final String ERROR_MESSAGE = "Ошибка при переводе";
+    public static final String ERROR_MESSAGE_NETWORK = "Ошибка в сети";
+
     public TranslateIntentService() {
-        super("myIntent");
+        super("intentTranlsate");
     }
 
     public void onCreate() {
         super.onCreate();
-
-        Log.d(TAG, "onCreate");
     }
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             String value = intent.getStringExtra(KEY_MESSAGE_FOR_TRANSLATE);
+            String translateLanguage = intent.getStringExtra(KEY_LANGUAGE_TRANSLATE);
             List<String> values = new ArrayList<>();
-            try {
-                URLEncoder.encode(value,"UTF8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            values.add(value);
             values.add(value);
 
             final List<ResponseTranslate> translates = new ArrayList<>();
-            App.getApi().tranaslate("trnsl.1.1.20170323T081927Z.1c9be6abb2522c33.f9ca2f4993e117e3bc673e579af132d13acd8bb2",
-                    values, "en-ru")
+            App.getApi().tranaslate(getResources().getString(R.string.key_yandex_api),
+                    values, translateLanguage)
+                    .enqueue(new Callback<ResponseTranslate>() {
+                        @Override
+                        public void onResponse(Call<ResponseTranslate> call,
+                                               Response<ResponseTranslate> response) {
+                            translates.add(response.body());
+                            if (response.body() != null && response.body().getCode().equals(SUCCESS_STATUS)
+                                    && response.body().getText() != null && response.body().getText().size() > 0) {
+                                Intent intentUpdate = new Intent();
+                                intentUpdate.setAction(ACTION_TRANSLATE);
+                                intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+                                intentUpdate.putExtra(EXTRA_KEY_TRANSLATE, response.body().getText().get(0));
+                                sendBroadcast(intentUpdate);
+                            } else {
+                                Toast.makeText(TranslateIntentService.this,
+                                        ERROR_MESSAGE, Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
-            .enqueue(new Callback<ResponseTranslate>() {
-
-                @Override
-                public void onResponse(Call<ResponseTranslate> call, Response<ResponseTranslate> response) {
-                    translates.add(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<ResponseTranslate> call, Throwable t) {
-                    Toast.makeText(TranslateIntentService.this,
-                            "An error occurred during networking", Toast.LENGTH_SHORT).show();
-                }
-            });
+                        @Override
+                        public void onFailure(Call<ResponseTranslate> call, Throwable t) {
+                            Toast.makeText(TranslateIntentService.this,
+                                    ERROR_MESSAGE_NETWORK, Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
     }
 

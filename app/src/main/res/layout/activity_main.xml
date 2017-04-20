@@ -9,6 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/colorPrimary"
     tools:context="com.example.tesla.yandextranslator.MainActivity">
 
 
@@ -16,12 +17,14 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@android:id/tabhost"
         android:layout_width="fill_parent"
+        android:background="@color/colorForm"
         android:layout_height="fill_parent">
         <RelativeLayout
             android:layout_height="fill_parent"
             android:layout_width="fill_parent">
 
             <TabWidget
+                android:background="@color/colorTabs"
                 android:id="@android:id/tabs"
                 android:layout_alignParentBottom="true"
                 android:layout_width="fill_parent"
@@ -36,6 +39,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true">
                 <RelativeLayout
+
                     android:id="@+id/tabTranslator"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -44,25 +48,58 @@
 
                     <EditText
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="150dp"
                         android:inputType="textPersonName"
                         android:ems="10"
                         android:id="@+id/translateFieldId"
+                        android:background="@android:color/background_light"
+                        android:layout_marginTop="70dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <Button
+                        android:text="@string/ru_en_string"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/buttonChangeLanguageId"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="100dp"
+                        android:layout_alignParentBottom="true"
+                        android:background="@color/colorTranslate"
+                        android:layout_marginBottom="90dp"
+                        android:id="@+id/translateViewId"
+                        android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:background="@android:color/background_light" />
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/buttonClearId"
+                        android:layout_below="@+id/translateFieldId"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/buttonClear" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/buttonTranslateId"
-                        android:layout_marginTop="41dp"
+                        android:text="@string/buttonTranslate"
                         android:layout_below="@+id/translateFieldId"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/buttonTranslate" />
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
 
                 </RelativeLayout>
                 <LinearLayout

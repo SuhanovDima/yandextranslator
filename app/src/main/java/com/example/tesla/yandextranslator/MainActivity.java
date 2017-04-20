@@ -1,6 +1,9 @@
 package com.example.tesla.yandextranslator;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -9,19 +12,51 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static String KEY_MESSAGE_FOR_TRANSLATE = "MessageForTranslate";
+    public static final String KEY_MESSAGE_FOR_TRANSLATE = "MessageForTranslate";
+    public static final String KEY_LANGUAGE_TRANSLATE = "LanguageTranslate";
 
-    public EditText translateText;
+    EditText translateText;
+    Button translateButton;
+    Button clearButton;
+    Button changeLanguageButton;
+    TranslateLanguage translateLanguage;
+    TextView translateView;
+
+    private TranslateBroadcastReceiver translateBroadcastReceiver;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        translateLanguage = TranslateLanguage.RU_TO_EN;
+        initTab();
+        initAllElementControl();
+        initChangeLanguage();
+        initClear();
+        initTranslator();
+        initBroadCasts();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(translateBroadcastReceiver);
+    }
+
+    public class TranslateBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_TRANSLATE);
+            translateView.setText(result);
+        }
+    }
+
+    private void initTab(){
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         // инициализация
         tabHost.setup();
@@ -56,16 +91,63 @@ public class MainActivity extends AppCompatActivity {
 
         // вторая вкладка будет выбрана по умолчанию
         tabHost.setCurrentTabByTag("tag1");
+    }
 
+    private void initAllElementControl(){
         translateText = (EditText) findViewById(R.id.translateFieldId);
-        Button translateButton = (Button) findViewById(R.id.buttonTranslateId);
+        translateButton = (Button) findViewById(R.id.buttonTranslateId);
+        clearButton = (Button) findViewById(R.id.buttonClearId);
+        changeLanguageButton = (Button) findViewById(R.id.buttonChangeLanguageId);
+        translateView = (TextView) findViewById(R.id.translateViewId);
+    }
+
+    private void initChangeLanguage(){
+        changeLanguageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (changeLanguageButton.getText().equals(getResources().getString(R.string.en_ru_string))) {
+                    translateLanguage = TranslateLanguage.RU_TO_EN;
+                    changeLanguageButton.setText(R.string.ru_en_string);
+                } else {
+                    changeLanguageButton.setText(R.string.en_ru_string);
+                    translateLanguage = TranslateLanguage.EN_TO_RU;
+                }
+
+            }
+        });
+
+    }
+
+    private void initTranslator(){
         translateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
-                intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
-                startService(intent);
+                callTranslateService();
             }
         });
+    }
+
+    private void initBroadCasts() {
+        translateBroadcastReceiver = new TranslateBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter(TranslateIntentService.ACTION_TRANSLATE);
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(translateBroadcastReceiver, intentFilter);
+    }
+
+    private void initClear(){
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                translateText.setText("");
+                translateView.setText("");
+            }
+        });
+    }
+
+    private void callTranslateService(){
+        Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
+        intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
+        intent.putExtra(KEY_LANGUAGE_TRANSLATE, translateLanguage.toString());
+        startService(intent);
     }
 }
