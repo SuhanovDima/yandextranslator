@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TranslateLanguage translateLanguage;
     TextView translateView;
     ListView historyListView;
+    ListView favoriteListView;
     Long currentId;
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
@@ -65,15 +66,26 @@ public class MainActivity extends AppCompatActivity {
 //        translateText.setText(allContacts.get(0).getNativeValue());
 //        translateView.setText(allContacts.get(0).getForeignValue());
 
+        loadData();
+
+
+    }
+
+    private void loadData(){
         loadHistory();
-
-
+        loadFavorite();
     }
 
     private void loadHistory(){
         ArrayList<HistoryTranslate> historyTranslates = (ArrayList<HistoryTranslate>) HistoryTranslate.listAll(HistoryTranslate.class, "date desc");
         HistoryAdapter historyAdapter = new HistoryAdapter(this, 0, historyTranslates);
         historyListView.setAdapter(historyAdapter);
+    }
+
+    private void loadFavorite(){
+        ArrayList<HistoryTranslate> favoriteTranslates = (ArrayList<HistoryTranslate>) HistoryTranslate.find(HistoryTranslate.class, "IS_FAVORITE = ?", "1");
+        HistoryAdapter historyAdapter = new HistoryAdapter(this, 0, favoriteTranslates);
+        favoriteListView.setAdapter(historyAdapter);
     }
 
     @Override
@@ -88,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_TRANSLATE);
             currentId = intent.getLongExtra(TranslateIntentService.EXTRA_KEY_ID, 0);
             translateView.setText(result);
-            loadHistory();
+            loadData();
         }
     }
 
@@ -137,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         changeLanguageButton = (Button) findViewById(R.id.buttonChangeLanguageId);
         translateView = (TextView) findViewById(R.id.translateViewId);
         historyListView = (ListView) findViewById(R.id.historyListViewId);
+        favoriteListView = (ListView) findViewById(R.id.favoriteListViewId);
     }
 
     private void initChangeLanguage(){
@@ -172,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 HistoryTranslate historyTranslate = HistoryTranslate.findById(HistoryTranslate.class, currentId);
                 historyTranslate.setFavorite(true);
                 historyTranslate.save();
+                loadData();
             }
         });
     }

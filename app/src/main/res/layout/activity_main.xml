@@ -117,6 +117,10 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="50dp"
                     android:text="@string/tab_favorites">
+                    <ListView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/favoriteListViewId" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/tabHistory"
