@@ -8,11 +8,21 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
+
+import com.example.tesla.yandextranslator.Data.HistoryAdapter;
+import com.example.tesla.yandextranslator.Data.HistoryTranslate;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,13 +32,15 @@ public class MainActivity extends AppCompatActivity {
     EditText translateText;
     Button translateButton;
     Button clearButton;
+    Button addFavoriteButton;
     Button changeLanguageButton;
     TranslateLanguage translateLanguage;
     TextView translateView;
+    ListView historyListView;
+    Long currentId;
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +52,28 @@ public class MainActivity extends AppCompatActivity {
         initClear();
         initTranslator();
         initBroadCasts();
+        initAddFavorite();
+
+
+//        Calendar cal = Calendar.getInstance();
+//        HistoryTranslate historyTranslate = new HistoryTranslate("привет", "hello", "ru", "en",cal.getTime(),false);
+//        HistoryTranslate historyTranslate2 = new HistoryTranslate("hello", "привет", "en", "ru",cal.getTime(),true);
+//        historyTranslate.save();
+//        historyTranslate2.save();
+//
+//        List<HistoryTranslate> allContacts = HistoryTranslate.listAll(HistoryTranslate.class);
+//        translateText.setText(allContacts.get(0).getNativeValue());
+//        translateView.setText(allContacts.get(0).getForeignValue());
+
+        loadHistory();
+
+
+    }
+
+    private void loadHistory(){
+        ArrayList<HistoryTranslate> historyTranslates = (ArrayList<HistoryTranslate>) HistoryTranslate.listAll(HistoryTranslate.class, "date desc");
+        HistoryAdapter historyAdapter = new HistoryAdapter(this, 0, historyTranslates);
+        historyListView.setAdapter(historyAdapter);
     }
 
     @Override
@@ -52,7 +86,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_TRANSLATE);
+            currentId = intent.getLongExtra(TranslateIntentService.EXTRA_KEY_ID, 0);
             translateView.setText(result);
+            loadHistory();
         }
     }
 
@@ -96,9 +132,11 @@ public class MainActivity extends AppCompatActivity {
     private void initAllElementControl(){
         translateText = (EditText) findViewById(R.id.translateFieldId);
         translateButton = (Button) findViewById(R.id.buttonTranslateId);
+        addFavoriteButton = (Button) findViewById(R.id.buttonAddFavoriteId);
         clearButton = (Button) findViewById(R.id.buttonClearId);
         changeLanguageButton = (Button) findViewById(R.id.buttonChangeLanguageId);
         translateView = (TextView) findViewById(R.id.translateViewId);
+        historyListView = (ListView) findViewById(R.id.historyListViewId);
     }
 
     private void initChangeLanguage(){
@@ -123,6 +161,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 callTranslateService();
+            }
+        });
+    }
+
+    private void initAddFavorite(){
+        addFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HistoryTranslate historyTranslate = HistoryTranslate.findById(HistoryTranslate.class, currentId);
+                historyTranslate.setFavorite(true);
+                historyTranslate.save();
             }
         });
     }

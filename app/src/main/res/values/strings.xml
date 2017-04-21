@@ -7,6 +7,7 @@
     <string name="tab_history">История</string>
     <string name="text_tab_header">Заголовок</string>
     <string name="buttonTranslate">Перевести</string>
+    <string name="buttonAddFavorite">Добавить в избранное</string>
     <string name="buttonClear">Очистить</string>
     <string name="ru_en_string">русский-английский</string>
     <string name="en_ru_string">английский-русский</string>

@@ -14,11 +14,13 @@
 
 
     <TabHost
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@android:id/tabhost"
         android:layout_width="fill_parent"
         android:background="@color/colorForm"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
         <RelativeLayout
             android:layout_height="fill_parent"
             android:layout_width="fill_parent">
@@ -26,7 +28,7 @@
             <TabWidget
                 android:background="@color/colorTabs"
                 android:id="@android:id/tabs"
-                android:layout_alignParentBottom="true"
+
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
 
@@ -35,17 +37,16 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:padding="5dp"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true">
                 <RelativeLayout
-
                     android:id="@+id/tabTranslator"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
+                    android:layout_below="@android:id/tabs"
+                    android:layout_marginTop="50dp"
                     android:text="@string/tab_translate">
-
                     <EditText
                         android:layout_width="wrap_content"
                         android:layout_height="150dp"
@@ -60,28 +61,17 @@
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true" />
 
-                    <Button
-                        android:text="@string/ru_en_string"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/buttonChangeLanguageId"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:layout_alignParentBottom="true"
                         android:background="@color/colorTranslate"
-                        android:layout_marginBottom="90dp"
                         android:id="@+id/translateViewId"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true" />
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@+id/buttonClearId" />
 
                     <Button
                         android:layout_width="wrap_content"
@@ -97,25 +87,51 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/buttonTranslateId"
                         android:text="@string/buttonTranslate"
+                        android:textSize="12sp"
                         android:layout_below="@+id/translateFieldId"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true" />
 
+                    <Button
+                        android:text="@string/ru_en_string"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:id="@+id/buttonChangeLanguageId"
+                        android:layout_alignParentTop="true" />
+
+                    <Button
+                        android:text="@string/buttonAddFavorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/buttonAddFavoriteId"
+                        android:textSize="12sp"
+                        android:layout_below="@+id/translateFieldId"
+                        android:layout_centerHorizontal="true" />
+
                 </RelativeLayout>
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/tabFavorites"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
+                    android:layout_marginTop="50dp"
                     android:text="@string/tab_favorites">
-                </LinearLayout>
-                <LinearLayout
+                </RelativeLayout>
+                <RelativeLayout
                     android:id="@+id/tabHistory"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
+                    android:layout_below="@android:id/tabs"
+                    android:layout_marginTop="50dp"
                     android:text="@string/tab_history">
-                </LinearLayout>
+
+                    <ListView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/historyListViewId" />
+                </RelativeLayout>
             </FrameLayout>
 
         </RelativeLayout>

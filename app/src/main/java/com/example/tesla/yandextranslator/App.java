@@ -2,6 +2,8 @@ package com.example.tesla.yandextranslator;
 
 import android.app.Application;
 
+import com.orm.SugarApp;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -9,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by suhanov on 04.04.2017.
  */
 
-public class App extends Application {
+public class App extends SugarApp {
     private static YandexTranslateApi yandexTranslateApi;
     private Retrofit retrofit;
 
