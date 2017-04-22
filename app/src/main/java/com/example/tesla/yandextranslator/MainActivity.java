@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     Long currentId;
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
+    private DictionaryBroadcastReceiver dictionaryBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +69,14 @@ public class MainActivity extends AppCompatActivity {
 
         loadData();
 
+        loadDictionary();
 
+
+    }
+
+    private void loadDictionary(){
+        Intent intent = new Intent(MainActivity.this, LanguagesIntentService.class);
+        startService(intent);
     }
 
     private void loadData(){
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(translateBroadcastReceiver);
+        unregisterReceiver(dictionaryBroadcastReceiver);
     }
 
     public class TranslateBroadcastReceiver extends BroadcastReceiver {
@@ -101,6 +110,13 @@ public class MainActivity extends AppCompatActivity {
             currentId = intent.getLongExtra(TranslateIntentService.EXTRA_KEY_ID, 0);
             translateView.setText(result);
             loadData();
+        }
+    }
+
+    public class DictionaryBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String[] dictionaries = intent.getStringArrayExtra(LanguagesIntentService.KEY_DICTIONARIES);
         }
     }
 
@@ -195,6 +211,11 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter(TranslateIntentService.ACTION_TRANSLATE);
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(translateBroadcastReceiver, intentFilter);
+
+        dictionaryBroadcastReceiver = new DictionaryBroadcastReceiver();
+        IntentFilter intentDicFilter = new IntentFilter(LanguagesIntentService.ACTION_DICTIONARY);
+        intentDicFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(dictionaryBroadcastReceiver, intentDicFilter);
     }
 
     private void initClear(){

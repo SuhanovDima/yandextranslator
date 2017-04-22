@@ -41,15 +41,12 @@ public class TranslateIntentService extends IntentService {
             final String translateLanguage = intent.getStringExtra(KEY_LANGUAGE_TRANSLATE);
             List<String> values = new ArrayList<>();
             values.add(value);
-
-            final List<ResponseTranslate> translates = new ArrayList<>();
-            App.getApi().tranaslate(getResources().getString(R.string.key_yandex_api),
+            App.getTranslatorApi().tranaslate(getResources().getString(R.string.key_yandex_api),
                     values, translateLanguage)
                     .enqueue(new Callback<ResponseTranslate>() {
                         @Override
                         public void onResponse(Call<ResponseTranslate> call,
                                                Response<ResponseTranslate> response) {
-                            translates.add(response.body());
                             if (response.body() != null && response.body().getCode().equals(SUCCESS_STATUS)
                                     && response.body().getText() != null && response.body().getText().size() > 0) {
                                 String[] langs = translateLanguage.split("-");
@@ -57,12 +54,12 @@ public class TranslateIntentService extends IntentService {
                                 HistoryTranslate historyTranslate = new HistoryTranslate(value,translateValue,
                                         langs[0], langs[1], Calendar.getInstance().getTime(), false);
                                 historyTranslate.save();
-                                Intent intentUpdate = new Intent();
-                                intentUpdate.setAction(ACTION_TRANSLATE);
-                                intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-                                intentUpdate.putExtra(EXTRA_KEY_TRANSLATE, response.body().getText().get(0));
-                                intentUpdate.putExtra(EXTRA_KEY_ID, historyTranslate.getId());
-                                sendBroadcast(intentUpdate);
+                                Intent intent = new Intent();
+                                intent.setAction(ACTION_TRANSLATE);
+                                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                                intent.putExtra(EXTRA_KEY_TRANSLATE, response.body().getText().get(0));
+                                intent.putExtra(EXTRA_KEY_ID, historyTranslate.getId());
+                                sendBroadcast(intent);
                             } else {
                                 Toast.makeText(TranslateIntentService.this,
                                         ERROR_MESSAGE, Toast.LENGTH_SHORT).show();
