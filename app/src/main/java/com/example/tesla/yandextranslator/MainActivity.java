@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,12 +34,19 @@ public class MainActivity extends AppCompatActivity {
     public static final String KEY_MESSAGE_FOR_TRANSLATE = "MessageForTranslate";
     public static final String KEY_LANGUAGE_TRANSLATE = "LanguageTranslate";
 
+    public static final String DELETE_FROM_FAVORITE = "Удалить запись из избранных";
+    public static final String DELETE_FROM_FAVORITE_ALL = "Удалить из избранных все";
+    public static final String DELETE_FROM_HISTORY = "Удалить запись из истории";
+    public static final String ADD_TO_FAVORITE = "Добавить запись в избранное";
+    public static final String DELETE_FROM_HISTORY_ALL = "Удалить всю историю";
+    public static final String SUCCESS_DELETE = "Успешно удалено";
+    public static final String SUCCESS_ADDED = "Успешно добавлено";
+
     EditText translateText;
     Button translateButton;
     Button clearButton;
     Button addFavoriteButton;
     Button changeLanguageButton;
-    TranslateLanguage translateLanguage;
     TextView translateView;
     ListView historyListView;
     ListView favoriteListView;
@@ -52,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     Dictionary dictionary;
     List<String> dics;
     Boolean isPossibleTranslate = true;
+    HistoryTranslate currentHistoryTranslate;
+    HistoryTranslate currentFavoriteTranslate;
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
     private DictionaryBroadcastReceiver dictionaryBroadcastReceiver;
@@ -62,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         dictionary = new Dictionary();
         dictionaris = dictionary.keyDictionary.keySet();
-        translateLanguage = TranslateLanguage.RU_TO_EN;
         initTab();
         initAllElementControl();
         initChangeLanguage();
@@ -108,6 +118,72 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(translateBroadcastReceiver);
         unregisterReceiver(dictionaryBroadcastReceiver);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.favoriteListViewId) {
+            ListView lv = (ListView) v;
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            currentFavoriteTranslate = (HistoryTranslate) lv.getItemAtPosition(acmi.position);
+
+            menu.add(DELETE_FROM_FAVORITE);
+            menu.add(DELETE_FROM_FAVORITE_ALL);
+        }
+        if (v.getId() == R.id.historyListViewId) {
+            ListView lv = (ListView) v;
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            currentHistoryTranslate = (HistoryTranslate) lv.getItemAtPosition(acmi.position);
+
+            menu.add(ADD_TO_FAVORITE);
+            menu.add(DELETE_FROM_HISTORY);
+            menu.add(DELETE_FROM_HISTORY_ALL);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getTitle().toString()) {
+            case DELETE_FROM_FAVORITE:
+                currentFavoriteTranslate.setFavorite(false);
+                currentFavoriteTranslate.save();
+                loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_DELETE, Toast.LENGTH_SHORT).show();
+                break;
+            case DELETE_FROM_FAVORITE_ALL:
+                List<HistoryTranslate> historyTranslates = HistoryTranslate.find(HistoryTranslate.class, "IS_FAVORITE = ?", "1");
+                for (HistoryTranslate historyTranslate:historyTranslates) {
+                    historyTranslate.setFavorite(false);
+                    historyTranslate.save();
+                }
+                loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_DELETE, Toast.LENGTH_SHORT).show();
+                break;
+            case DELETE_FROM_HISTORY:
+                currentHistoryTranslate.delete();
+                loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_DELETE, Toast.LENGTH_SHORT).show();
+                break;
+            case DELETE_FROM_HISTORY_ALL:
+                HistoryTranslate.deleteAll(HistoryTranslate.class);
+                loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_DELETE, Toast.LENGTH_SHORT).show();
+                break;
+            case ADD_TO_FAVORITE:
+                currentHistoryTranslate.setFavorite(true);
+                currentHistoryTranslate.save();
+                loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_ADDED, Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     public class TranslateBroadcastReceiver extends BroadcastReceiver {
@@ -169,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i =0; i<3; i++) {
             TextView x = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
-            x.setTextSize(9);
+            x.setTextSize(10);
 
         }
     }
@@ -185,6 +261,8 @@ public class MainActivity extends AppCompatActivity {
         favoriteListView = (ListView) findViewById(R.id.favoriteListViewId);
         spinnerNative = (Spinner) findViewById(R.id.spinnerNative);
         spinnerForeign = (Spinner) findViewById(R.id.spinnerForeign);
+        registerForContextMenu(favoriteListView);
+        registerForContextMenu(historyListView);
     }
 
     private void initSpinner(){
