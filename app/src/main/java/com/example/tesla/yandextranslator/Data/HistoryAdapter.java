@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class HistoryAdapter extends ArrayAdapter<HistoryTranslate> {
-    private Activity activity;
     private ArrayList<HistoryTranslate> translateArrayList;
     private static LayoutInflater inflater = null;
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
@@ -24,7 +23,6 @@ public class HistoryAdapter extends ArrayAdapter<HistoryTranslate> {
     public HistoryAdapter (Activity activity, int textViewResourceId, ArrayList<HistoryTranslate> _translateArrayList) {
         super(activity, textViewResourceId, _translateArrayList);
         try {
-            this.activity = activity;
             this.translateArrayList = _translateArrayList;
 
             inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
