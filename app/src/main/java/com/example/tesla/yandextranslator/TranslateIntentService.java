@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.example.tesla.yandextranslator.Data.HistoryTranslate;
+import com.example.tesla.yandextranslator.JsonResponseObject.DicResult;
 import com.example.tesla.yandextranslator.Utils.ArrayUtils;
 
 import java.util.ArrayList;
@@ -85,8 +86,51 @@ public class TranslateIntentService extends IntentService {
                                     ERROR_MESSAGE_NETWORK, Toast.LENGTH_SHORT).show();
                         }
                     });
+
+            if(valuesString.length == 1) {
+                String[] words = valuesString[0].split(" ");
+                if (words.length == 1) {
+                    App.getDictionaryApi().getLookUp(getResources().getString(R.string.key_yandex_api_all),
+                            translateLanguage, words[0])
+                            .enqueue(new Callback<DicResult>() {
+                                @Override
+                                public void onResponse(Call<DicResult> call,
+                                                       Response<DicResult> response) {
+                                    if (response.body() != null ) {
+//                                        String[] langs = translateLanguage.split("-");
+//                                        StringBuilder translateValue = new StringBuilder();
+//                                        List<Long> ids = new ArrayList<Long>();
+//                                        for(int i = 0; i< response.body().getText().size(); i++) {
+//                                            translateValue.append(response.body().getText().get(i) + "\n");
+//                                            HistoryTranslate historyTranslate = new HistoryTranslate(values.get(i) ,response.body().getText().get(i),
+//                                                    langs[0], langs[1], Calendar.getInstance().getTime(), false);
+//                                            historyTranslate.save();
+//                                            ids.add(historyTranslate.getId());
+//                                        }
+//
+//                                        Intent intent = new Intent();
+//                                        intent.setAction(ACTION_TRANSLATE);
+//                                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+//                                        intent.putExtra(EXTRA_KEY_TRANSLATE, translateValue.toString());
+//
+//                                        long[] longArray = ArrayUtils.toPrimitives(ids.toArray(new Long[ids.size()]));
+//                                        intent.putExtra(EXTRA_KEY_ID, longArray);
+//                                        sendBroadcast(intent);
+                                    } else {
+                                        Toast.makeText(TranslateIntentService.this,
+                                                ERROR_MESSAGE, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<DicResult> call, Throwable t) {
+                                    Toast.makeText(TranslateIntentService.this,
+                                            ERROR_MESSAGE_NETWORK, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+
+            }
         }
     }
-
-
 }
