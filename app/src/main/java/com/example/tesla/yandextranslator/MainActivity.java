@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.tesla.yandextranslator.Data.Dictionary;
 import com.example.tesla.yandextranslator.Data.HistoryAdapter;
 import com.example.tesla.yandextranslator.Data.HistoryTranslate;
+import com.example.tesla.yandextranslator.Utils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     TextView translateView;
     ListView historyListView;
     ListView favoriteListView;
-    Long currentId;
+    List<Long> currentIds;
     Spinner spinnerNative;
     Spinner spinnerForeign;
     String[] dictionaryArrayList;
@@ -102,13 +103,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadHistory(){
-        ArrayList<HistoryTranslate> historyTranslates = (ArrayList<HistoryTranslate>) HistoryTranslate.listAll(HistoryTranslate.class, "date desc");
+        ArrayList<HistoryTranslate> historyTranslates =
+                (ArrayList<HistoryTranslate>) HistoryTranslate.listAll(HistoryTranslate.class, "date desc");
         HistoryAdapter historyAdapter = new HistoryAdapter(this, 0, historyTranslates);
         historyListView.setAdapter(historyAdapter);
     }
 
     private void loadFavorite(){
-        ArrayList<HistoryTranslate> favoriteTranslates = (ArrayList<HistoryTranslate>) HistoryTranslate.find(HistoryTranslate.class, "IS_FAVORITE = ?", "1");
+        ArrayList<HistoryTranslate> favoriteTranslates =
+                (ArrayList<HistoryTranslate>) HistoryTranslate.find(HistoryTranslate.class, "IS_FAVORITE = ?", "1");
         HistoryAdapter historyAdapter = new HistoryAdapter(this, 0, favoriteTranslates);
         favoriteListView.setAdapter(historyAdapter);
     }
@@ -190,7 +193,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_TRANSLATE);
-            currentId = intent.getLongExtra(TranslateIntentService.EXTRA_KEY_ID, 0);
+            long [] ids = intent.getLongArrayExtra(TranslateIntentService.EXTRA_KEY_ID);
+            Long[] longObjects = ArrayUtils.toObject(ids);
+            currentIds = java.util.Arrays.asList(longObjects);
             translateView.setText(result);
             loadData();
         }
@@ -201,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             dictionaryArrayList = intent.getStringArrayExtra(LanguagesIntentService.KEY_DICTIONARIES);
             dictionaryTranslate = new HashSet<String>(Arrays.asList(dictionaryArrayList));
-            String[] langs = dictionaryArrayList[0].split("-");
             initSpinner();
         }
     }
@@ -246,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
         for(int i =0; i<3; i++) {
             TextView x = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
             x.setTextSize(10);
-
         }
     }
 
@@ -280,12 +283,14 @@ public class MainActivity extends AppCompatActivity {
                     String key = dictionary.keyDictionary.get(dics.get(position));
                     String translate = key + "-" + currentNativeLanguage;
                     if(dictionaryTranslate.contains(translate)) {
+                        isPossibleTranslate = true;
                         currentForeignLanguage = dictionary.keyDictionary.get(dics.get(position));
                     } else {
 
                         Toast.makeText(MainActivity.this,
                                 "Перевод при выбранных языках не возможен",
                                 Toast.LENGTH_SHORT).show();
+                        isPossibleTranslate = false;
                     }
                 } else {
                     Toast.makeText(MainActivity.this,
@@ -307,8 +312,10 @@ public class MainActivity extends AppCompatActivity {
                     String key = dictionary.keyDictionary.get(dics.get(position));
                     String translate = currentForeignLanguage + "-" + key;
                     if(dictionaryTranslate.contains(translate)) {
+                        isPossibleTranslate = true;
                         currentNativeLanguage =  dictionary.keyDictionary.get(dics.get(position));
                     } else {
+                        isPossibleTranslate = false;
                         Toast.makeText(MainActivity.this,
                                 "Перевод при выбранных языках не возможен",
                                 Toast.LENGTH_SHORT).show();
@@ -351,10 +358,14 @@ public class MainActivity extends AppCompatActivity {
         addFavoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HistoryTranslate historyTranslate = HistoryTranslate.findById(HistoryTranslate.class, currentId);
-                historyTranslate.setFavorite(true);
-                historyTranslate.save();
+                for (Long id: currentIds) {
+                    HistoryTranslate historyTranslate = HistoryTranslate.findById(HistoryTranslate.class, id);
+                    historyTranslate.setFavorite(true);
+                    historyTranslate.save();
+                }
                 loadData();
+                Toast.makeText(MainActivity.this,
+                        SUCCESS_ADDED, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -382,9 +393,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callTranslateService(){
-        Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
-        intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
-        intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);
-        startService(intent);
+        if(isPossibleTranslate) {
+            Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
+            intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
+            intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);
+            startService(intent);
+        }
     }
 }

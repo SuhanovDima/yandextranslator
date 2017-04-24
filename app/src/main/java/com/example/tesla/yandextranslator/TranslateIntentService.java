@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.example.tesla.yandextranslator.Data.HistoryTranslate;
+import com.example.tesla.yandextranslator.Utils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,8 +40,12 @@ public class TranslateIntentService extends IntentService {
         if (intent != null) {
             final String value = intent.getStringExtra(KEY_MESSAGE_FOR_TRANSLATE);
             final String translateLanguage = intent.getStringExtra(KEY_LANGUAGE_TRANSLATE);
-            List<String> values = new ArrayList<>();
-            values.add(value);
+            String[] valuesString = value.split("\n");
+            List<String> valueList = new ArrayList<>();
+            for (String s:valuesString) {
+                valueList.add(s);
+            }
+            final List<String> values = valueList;
             App.getTranslatorApi().tranaslate(getResources().getString(R.string.key_yandex_api),
                     values, translateLanguage)
                     .enqueue(new Callback<ResponseTranslate>() {
@@ -50,15 +55,23 @@ public class TranslateIntentService extends IntentService {
                             if (response.body() != null && response.body().getCode().equals(SUCCESS_STATUS)
                                     && response.body().getText() != null && response.body().getText().size() > 0) {
                                 String[] langs = translateLanguage.split("-");
-                                String translateValue = response.body().getText().get(0);
-                                HistoryTranslate historyTranslate = new HistoryTranslate(value,translateValue,
-                                        langs[0], langs[1], Calendar.getInstance().getTime(), false);
-                                historyTranslate.save();
+                                StringBuilder translateValue = new StringBuilder();
+                                List<Long> ids = new ArrayList<Long>();
+                                for(int i = 0; i< response.body().getText().size(); i++) {
+                                    translateValue.append(response.body().getText().get(i) + "\n");
+                                    HistoryTranslate historyTranslate = new HistoryTranslate(values.get(i) ,response.body().getText().get(i),
+                                            langs[0], langs[1], Calendar.getInstance().getTime(), false);
+                                    historyTranslate.save();
+                                    ids.add(historyTranslate.getId());
+                                }
+
                                 Intent intent = new Intent();
                                 intent.setAction(ACTION_TRANSLATE);
                                 intent.addCategory(Intent.CATEGORY_DEFAULT);
-                                intent.putExtra(EXTRA_KEY_TRANSLATE, response.body().getText().get(0));
-                                intent.putExtra(EXTRA_KEY_ID, historyTranslate.getId());
+                                intent.putExtra(EXTRA_KEY_TRANSLATE, translateValue.toString());
+
+                                long[] longArray = ArrayUtils.toPrimitives(ids.toArray(new Long[ids.size()]));
+                                intent.putExtra(EXTRA_KEY_ID, longArray);
                                 sendBroadcast(intent);
                             } else {
                                 Toast.makeText(TranslateIntentService.this,
