@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinnerNative;
     Spinner spinnerForeign;
     String[] dictionaryArrayList;
-    Set<String> dictionaris;
-    Set<String> dictionaryTranslate;
     String currentNativeLanguage;
     String currentForeignLanguage;
     Dictionary dictionary;
@@ -79,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dictionary = new Dictionary();
-        dictionaris = dictionary.keyDictionary.keySet();
         initTab();
         initAllElementControl();
         initChangeLanguage();
@@ -87,9 +84,6 @@ public class MainActivity extends AppCompatActivity {
         initTranslator();
         initBroadCasts();
         initAddFavorite();
-
-        dics = new ArrayList<>();
-        dics.addAll(dictionaris);
 
         currentForeignLanguage = "en";
         currentNativeLanguage = "en";
@@ -223,6 +217,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             dictionaryArrayList = intent.getStringArrayExtra(LanguagesIntentService.KEY_DICTIONARIES);
             dictionary.fillKeyLangTransMap(dictionaryArrayList);
+            dics = new ArrayList<>();
+            dics.addAll(dictionary.keyDictionary.keySet());
             initSpinner();
         }
     }
@@ -310,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.record_dictionary_layout,
                 R.id.textViewDictionaryId, dics);
         spinnerNative.setAdapter(arrayAdapter);
-        spinnerNative.setSelection(3);
+        spinnerNative.setSelection(0);
     }
 
     private void initSpinner(){
@@ -357,7 +353,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         initNativeSpinner();
     }
 

@@ -2,16 +2,18 @@ package com.example.tesla.yandextranslator.Data;
 
 import com.orm.SugarRecord;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Dictionary {
-    public final Map<String,String> keyDictionary;
-    public final Map<String,String> langDictionary;
+    public Map<String,String> keyDictionary;
+    public Map<String,String> langDictionary;
     public Map<String, Set<String>> keyLangTransMap;
     public Dictionary() {
         keyLangTransMap = new TreeMap<>();
@@ -127,7 +129,16 @@ public class Dictionary {
                 keyLangTransMap.put(langs[0],strings);
             }
         }
-
+        List<String> keyDeleteLang = new ArrayList<>();
+        for(String key : langDictionary.keySet()){
+            if(!keyLangTransMap.containsKey(key)) {
+                String value = langDictionary.get(key);
+                keyDictionary.remove(value);
+                keyDeleteLang.add(key);
+            }
+        }
+        for (String key : keyDeleteLang) {
+            langDictionary.remove(key);
+        }
     }
-
 }
