@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i =0; i<3; i++) {
             TextView x = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
-            x.setTextSize(10);
+            x.setTextSize(11);
         }
     }
 
