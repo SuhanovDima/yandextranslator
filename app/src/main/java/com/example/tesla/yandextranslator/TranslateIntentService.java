@@ -66,10 +66,13 @@ public class TranslateIntentService extends IntentService {
                                 List<Long> ids = new ArrayList<Long>();
                                 for(int i = 0; i< response.body().getText().size(); i++) {
                                     translateValue.append(response.body().getText().get(i) + "\n");
-                                    HistoryTranslate historyTranslate = new HistoryTranslate(values.get(i) ,response.body().getText().get(i),
-                                            langs[0], langs[1], Calendar.getInstance().getTime(), false);
-                                    historyTranslate.save();
-                                    ids.add(historyTranslate.getId());
+                                    if(response.body().getText().get(i) != "" && values.get(i) != "") {
+                                        HistoryTranslate historyTranslate = new HistoryTranslate(values.get(i),
+                                                response.body().getText().get(i),
+                                                langs[0], langs[1], Calendar.getInstance().getTime(), false);
+                                        historyTranslate.save();
+                                        ids.add(historyTranslate.getId());
+                                    }
                                 }
 
                                 Intent intent = new Intent();
@@ -106,6 +109,7 @@ public class TranslateIntentService extends IntentService {
                                         StringBuilder responseDic = new StringBuilder();
                                         List<Def> defs = response.body().getDef();
                                         for (Def def:defs) {
+                                            responseDic.append(def.getPos() + "\n");
                                             Integer number = 1;
                                             for(Tr tr : def.getTr()){
                                                 StringBuilder responseSynLine = new StringBuilder(number.toString() + " ");
