@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     Boolean isPossibleTranslate = true;
     HistoryTranslate currentHistoryTranslate;
     HistoryTranslate currentFavoriteTranslate;
+    ScrollView scrollView;
+
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
     private DictionaryBroadcastReceiver dictionaryBroadcastReceiver;
@@ -123,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(translateBroadcastReceiver);
         unregisterReceiver(dictionaryBroadcastReceiver);
+        unregisterReceiver(lookUpBroadcastReceiver);
     }
 
     @Override
@@ -199,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
             Long[] longObjects = ArrayUtils.toObject(ids);
             currentIds = java.util.Arrays.asList(longObjects);
             translateView.setText(result);
+            addFavoriteButton.setVisibility(View.VISIBLE);
             loadData();
         }
     }
@@ -207,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_LOOK_UP);
+            scrollView.setVisibility(View.VISIBLE);
             lookUpView.setText(result);
         }
     }
@@ -275,8 +282,11 @@ public class MainActivity extends AppCompatActivity {
         favoriteListView = (ListView) findViewById(R.id.favoriteListViewId);
         spinnerNative = (Spinner) findViewById(R.id.spinnerNative);
         spinnerForeign = (Spinner) findViewById(R.id.spinnerForeign);
+        scrollView = (ScrollView) findViewById(R.id.textAreaScroller);
         registerForContextMenu(favoriteListView);
         registerForContextMenu(historyListView);
+        scrollView.setVisibility(View.INVISIBLE);
+        addFavoriteButton.setVisibility(View.INVISIBLE);
     }
 
     private void initSpinner(){
@@ -406,6 +416,8 @@ public class MainActivity extends AppCompatActivity {
                 translateText.setText("");
                 translateView.setText("");
                 lookUpView.setText("");
+                scrollView.setVisibility(View.INVISIBLE);
+                addFavoriteButton.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -413,6 +425,8 @@ public class MainActivity extends AppCompatActivity {
     private void callTranslateService(){
         if(isPossibleTranslate) {
             lookUpView.setText("");
+            scrollView.setVisibility(View.INVISIBLE);
+            addFavoriteButton.setVisibility(View.INVISIBLE);
             Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
             intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
             intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);

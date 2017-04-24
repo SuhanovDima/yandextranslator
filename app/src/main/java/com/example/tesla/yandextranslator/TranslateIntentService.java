@@ -7,8 +7,7 @@ import android.widget.Toast;
 import com.example.tesla.yandextranslator.Data.HistoryTranslate;
 import com.example.tesla.yandextranslator.JsonResponseObject.Def;
 import com.example.tesla.yandextranslator.JsonResponseObject.DicResult;
-import com.example.tesla.yandextranslator.JsonResponseObject.Mean;
-import com.example.tesla.yandextranslator.JsonResponseObject.Syn;
+import com.example.tesla.yandextranslator.JsonResponseObject.ResponseTranslate;
 import com.example.tesla.yandextranslator.JsonResponseObject.Tr;
 import com.example.tesla.yandextranslator.Utils.ArrayUtils;
 

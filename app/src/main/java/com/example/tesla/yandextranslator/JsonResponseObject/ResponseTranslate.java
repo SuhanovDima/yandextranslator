@@ -1,4 +1,4 @@
-package com.example.tesla.yandextranslator;
+package com.example.tesla.yandextranslator.JsonResponseObject;
 
 
 import com.google.gson.annotations.Expose;
