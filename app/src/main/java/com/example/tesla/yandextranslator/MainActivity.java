@@ -64,11 +64,11 @@ public class MainActivity extends AppCompatActivity {
     String currentForeignLanguage;
     Dictionary dictionary;
     List<String> dics;
-    Boolean isPossibleTranslate = true;
     HistoryTranslate currentHistoryTranslate;
     HistoryTranslate currentFavoriteTranslate;
     ScrollView scrollView;
-
+    Integer currentPositionLang = 0;
+    Boolean isRevertLang = false;
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
     private DictionaryBroadcastReceiver dictionaryBroadcastReceiver;
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             dictionaryArrayList = intent.getStringArrayExtra(LanguagesIntentService.KEY_DICTIONARIES);
-            dictionaryTranslate = new HashSet<String>(Arrays.asList(dictionaryArrayList));
+            dictionary.fillKeyLangTransMap(dictionaryArrayList);
             initSpinner();
         }
     }
@@ -289,30 +289,41 @@ public class MainActivity extends AppCompatActivity {
         addFavoriteButton.setVisibility(View.INVISIBLE);
     }
 
-    private void initSpinner(){
+    private void initForeignSpinner(Set<String> valuesTranslateLangs){
+        String[] langs = new String[0];
+        if(valuesTranslateLangs != null && valuesTranslateLangs.size() > 0){
+            langs = valuesTranslateLangs.toArray(new String[valuesTranslateLangs.size()]);
+        }
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.record_dictionary_layout,
+                R.id.textViewDictionaryId, langs);
+        spinnerForeign.setAdapter(arrayAdapter);
+        if(langs.length > 0) {
+            if (isRevertLang && langs.length > currentPositionLang) {
+                spinnerForeign.setSelection(currentPositionLang);
+            } else {
+                spinnerForeign.setSelection(0);
+            }
+        }
+        isRevertLang = false;
+    }
+    private void initNativeSpinner(){
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.record_dictionary_layout,
                 R.id.textViewDictionaryId, dics);
-        spinnerForeign.setAdapter(arrayAdapter);
-        spinnerForeign.setSelection(3);
         spinnerNative.setAdapter(arrayAdapter);
         spinnerNative.setSelection(3);
+    }
+
+    private void initSpinner(){
 
         spinnerForeign.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if( dictionary.keyDictionary.containsKey(dics.get(position))) {
-                    String key = dictionary.keyDictionary.get(dics.get(position));
-                    String translate = key + "-" + currentNativeLanguage;
-                    if(dictionaryTranslate.contains(translate)) {
-                        isPossibleTranslate = true;
-                        currentForeignLanguage = dictionary.keyDictionary.get(dics.get(position));
-                    } else {
-
-                        Toast.makeText(MainActivity.this,
-                                "Перевод при выбранных языках не возможен",
-                                Toast.LENGTH_SHORT).show();
-                        isPossibleTranslate = false;
-                    }
+                Set<String> valuesTranslateLangs = dictionary.keyLangTransMap.get(currentNativeLanguage);
+                List<String> strings = new ArrayList<>();
+                strings.addAll(valuesTranslateLangs);
+                if( dictionary.keyDictionary.containsKey(strings.get(position))) {
+                    String key = dictionary.keyDictionary.get(strings.get(position));
+                    currentForeignLanguage = key;
                 } else {
                     Toast.makeText(MainActivity.this,
                             "Ошибка при выборе языка",
@@ -331,16 +342,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if( dictionary.keyDictionary.containsKey(dics.get(position))) {
                     String key = dictionary.keyDictionary.get(dics.get(position));
-                    String translate = currentForeignLanguage + "-" + key;
-                    if(dictionaryTranslate.contains(translate)) {
-                        isPossibleTranslate = true;
-                        currentNativeLanguage =  dictionary.keyDictionary.get(dics.get(position));
-                    } else {
-                        isPossibleTranslate = false;
-                        Toast.makeText(MainActivity.this,
-                                "Перевод при выбранных языках не возможен",
-                                Toast.LENGTH_SHORT).show();
-                    }
+                    Set<String> valuesTranslateLangs = dictionary.keyLangTransMap.get(key);
+                    initForeignSpinner(valuesTranslateLangs);
+                    currentNativeLanguage = key;
                 } else {
                     Toast.makeText(MainActivity.this,
                             "Ошибка при выборе языка",
@@ -353,15 +357,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        initNativeSpinner();
     }
 
     private void initChangeLanguage(){
         changeLanguageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int positionNative = spinnerNative.getSelectedItemPosition();
-                spinnerNative.setSelection(spinnerForeign.getSelectedItemPosition());
-                spinnerForeign.setSelection(positionNative);
+                isRevertLang = true;
+                int indexInDics = dics.indexOf(dictionary.langDictionary.get(currentForeignLanguage));
+                Set<String> valuesTranslateLangs = dictionary.keyLangTransMap.get(currentForeignLanguage);
+                String nativeValue = currentNativeLanguage;
+                List<String> strings = new ArrayList<>();
+                strings.addAll(valuesTranslateLangs);
+                currentPositionLang = strings.indexOf(dictionary.langDictionary.get(nativeValue));
+                spinnerNative.setSelection(indexInDics);
             }
         });
     }
@@ -423,14 +434,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callTranslateService(){
-        if(isPossibleTranslate) {
-            lookUpView.setText("");
-            scrollView.setVisibility(View.INVISIBLE);
-            addFavoriteButton.setVisibility(View.INVISIBLE);
-            Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
-            intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
-            intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);
-            startService(intent);
-        }
+        lookUpView.setText("");
+        scrollView.setVisibility(View.INVISIBLE);
+        addFavoriteButton.setVisibility(View.INVISIBLE);
+        Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
+        intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
+        intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);
+        startService(intent);
+
     }
 }

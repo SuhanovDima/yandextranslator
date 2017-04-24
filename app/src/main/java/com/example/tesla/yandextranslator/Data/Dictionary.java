@@ -3,12 +3,18 @@ package com.example.tesla.yandextranslator.Data;
 import com.orm.SugarRecord;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Dictionary {
     public final Map<String,String> keyDictionary;
+    public final Map<String,String> langDictionary;
+    public Map<String, Set<String>> keyLangTransMap;
     public Dictionary() {
+        keyLangTransMap = new TreeMap<>();
         keyDictionary = new TreeMap<>();
         keyDictionary.put("азербайджанский", "az");
         keyDictionary.put("албанский", "sq");
@@ -101,6 +107,27 @@ public class Dictionary {
         keyDictionary.put("эсперанто", "eo");
         keyDictionary.put("яванский", "jv");
         keyDictionary.put("японский", "ja");
+
+        langDictionary = new TreeMap<>();
+        for (String key : keyDictionary.keySet()) {
+            String value = keyDictionary.get(key);
+            langDictionary.put(value,key);
+        }
+    }
+
+
+    public void fillKeyLangTransMap(String[] dics){
+        for(String s : dics) {
+            String[] langs = s.split("-");
+            if(keyLangTransMap.containsKey(langs[0])) {
+                keyLangTransMap.get(langs[0]).add(langDictionary.get(langs[1]));
+            } else {
+                Set<String> strings = new TreeSet<>();
+                strings.add(langDictionary.get(langs[1]));
+                keyLangTransMap.put(langs[0],strings);
+            }
+        }
+
     }
 
 }
