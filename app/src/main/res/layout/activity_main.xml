@@ -57,7 +57,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
                         android:background="@color/colorTranslate"
                         android:id="@+id/translateViewId"
                         android:layout_alignParentRight="true"
@@ -65,6 +64,17 @@
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentStart="true"
                         android:layout_below="@+id/buttonClearId" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorTranslate"
+                        android:id="@+id/lookUpViewId"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@+id/translateViewId" />
 
                     <Button
                         android:layout_width="wrap_content"

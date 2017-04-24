@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     Button addFavoriteButton;
     Button changeLanguageButton;
     TextView translateView;
+    TextView lookUpView;
     ListView historyListView;
     ListView favoriteListView;
     List<Long> currentIds;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TranslateBroadcastReceiver translateBroadcastReceiver;
     private DictionaryBroadcastReceiver dictionaryBroadcastReceiver;
+    private LookUpBroadcastReceiver lookUpBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +203,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class LookUpBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String result = intent.getStringExtra(TranslateIntentService.EXTRA_KEY_LOOK_UP);
+            lookUpView.setText(result);
+        }
+    }
+
     public class DictionaryBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -260,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
         clearButton = (Button) findViewById(R.id.buttonClearId);
         changeLanguageButton = (Button) findViewById(R.id.buttonChangeLanguageId);
         translateView = (TextView) findViewById(R.id.translateViewId);
+        lookUpView = (TextView) findViewById(R.id.lookUpViewId);
         historyListView = (ListView) findViewById(R.id.historyListViewId);
         favoriteListView = (ListView) findViewById(R.id.favoriteListViewId);
         spinnerNative = (Spinner) findViewById(R.id.spinnerNative);
@@ -380,6 +391,12 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentDicFilter = new IntentFilter(LanguagesIntentService.ACTION_DICTIONARY);
         intentDicFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(dictionaryBroadcastReceiver, intentDicFilter);
+
+        lookUpBroadcastReceiver = new LookUpBroadcastReceiver();
+        IntentFilter intentLookUpFilter = new IntentFilter(TranslateIntentService.ACTION_LOOK_UP);
+        intentLookUpFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(lookUpBroadcastReceiver, intentLookUpFilter);
+
     }
 
     private void initClear(){
@@ -388,12 +405,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 translateText.setText("");
                 translateView.setText("");
+                lookUpView.setText("");
             }
         });
     }
 
     private void callTranslateService(){
         if(isPossibleTranslate) {
+            lookUpView.setText("");
             Intent intent = new Intent(MainActivity.this, TranslateIntentService.class);
             intent.putExtra(KEY_MESSAGE_FOR_TRANSLATE, translateText.getText().toString());
             intent.putExtra(KEY_LANGUAGE_TRANSLATE, currentNativeLanguage + "-" + currentForeignLanguage);
