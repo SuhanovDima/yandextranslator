@@ -225,42 +225,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTab(){
         TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
-        // инициализация
         tabHost.setup();
-
         TabHost.TabSpec tabSpec;
-
-        // создаем вкладку и указываем тег
         tabSpec = tabHost.newTabSpec("tabTranslator");
-        // название вкладки
         tabSpec.setIndicator(getResources().getString(R.string.tab_translate));
-        // указываем id компонента из FrameLayout, он и станет содержимым
         tabSpec.setContent(R.id.tabTranslator);
-        // добавляем в корневой элемент
         tabHost.addTab(tabSpec);
-
         tabSpec = tabHost.newTabSpec("tabFavorites");
-        // указываем название и картинку
-        // в нашем случае вместо картинки идет xml-файл,
-        // который определяет картинку по состоянию вкладки
-        tabSpec.setIndicator(getResources().getString(R.string.tab_favorites), getResources().getDrawable(R.drawable.tab_icon_selector));
+        tabSpec.setIndicator(getResources().getString(R.string.tab_favorites));
         tabSpec.setContent(R.id.tabFavorites);
         tabHost.addTab(tabSpec);
-
-
         tabSpec = tabHost.newTabSpec("tabHistory");
-
-        // указываем название и картинку
-        // в нашем случае вместо картинки идет xml-файл,
-        // который определяет картинку по состоянию вкладки
-        tabSpec.setIndicator(getResources().getString(R.string.tab_history), getResources().getDrawable(R.drawable.tab_icon_selector));
+        tabSpec.setIndicator(getResources().getString(R.string.tab_history));
         tabSpec.setContent(R.id.tabHistory);
         tabHost.addTab(tabSpec);
-
-        // вторая вкладка будет выбрана по умолчанию
         tabHost.setCurrentTabByTag("tag1");
 
-        for(int i =0; i<3; i++) {
+        for(int i =0; i < tabHost.getTabWidget().getTabCount(); i++) {
             TextView x = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
             x.setTextSize(11);
         }
