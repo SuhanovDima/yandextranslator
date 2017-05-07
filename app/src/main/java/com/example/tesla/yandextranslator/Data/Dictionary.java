@@ -85,7 +85,7 @@ public class Dictionary {
         keyDictionary.put("сингальский", "si");
         keyDictionary.put("словацкий", "sk");
         keyDictionary.put("словенский", "sl");
-        keyDictionary.put("суахили", "sv");
+        keyDictionary.put("суахили", "sw");
         keyDictionary.put("сунданский", "su");
         keyDictionary.put("таджикский", "tg");
         keyDictionary.put("тайский", "th");
@@ -116,7 +116,6 @@ public class Dictionary {
             langDictionary.put(value,key);
         }
     }
-
 
     public void fillKeyLangTransMap(String[] dics){
         for(String s : dics) {
